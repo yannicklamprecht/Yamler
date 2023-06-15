@@ -61,7 +61,7 @@ public class Set implements Converter {
     }
 
     @Override
-    public boolean supports(Class<?> type) {
+    public boolean supports(Class type) {
         return java.util.Set.class.isAssignableFrom(type);
     }
 

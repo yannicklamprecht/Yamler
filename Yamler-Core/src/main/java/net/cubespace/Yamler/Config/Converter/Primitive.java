@@ -9,7 +9,7 @@ import java.util.HashSet;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class Primitive implements Converter {
-    private HashSet<String> types = new HashSet<String>() {{
+    private final HashSet<String> types = new HashSet<String>() {{
         add("boolean");
         add("char");
         add("byte");
@@ -32,23 +32,31 @@ public class Primitive implements Converter {
     }
 
     @Override
-    public Object fromConfig(Class type, Object section, ParameterizedType genericType) throws Exception {
-        switch(type.getSimpleName()) {
+    public Object fromConfig(Class<?> type, Object section, ParameterizedType genericType) throws Exception {
+        switch (type.getSimpleName()) {
             case "short":
-                return (section instanceof Short) ? section : new Integer((int) section).shortValue();
+                return (section instanceof Short) ? section : fromInt(section).shortValue();
             case "byte":
-                return (section instanceof Byte) ? section : new Integer((int) section).byteValue();
+                return (section instanceof Byte) ? section : fromInt(section).byteValue();
             case "float":
-                if ( section instanceof Integer ) {
-                    return new Double( (int) section ).floatValue();
+                if (section instanceof Integer) {
+                    return fromInt(section).floatValue();
                 }
 
-                return (section instanceof Float) ? section : new Double((double) section).floatValue();
+                return (section instanceof Float) ? section : fromDouble(section).floatValue();
             case "char":
                 return (section instanceof Character) ? section : ((String) section).charAt(0);
             default:
                 return section;
         }
+    }
+
+    private Integer fromInt(Object section) {
+        return (Integer) section;
+    }
+
+    private Double fromDouble(Object section) {
+        return (Double) section;
     }
 
     @Override

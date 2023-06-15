@@ -11,7 +11,7 @@ import java.util.Collections;
  * @author bibo38
  */
 public class Array implements Converter {
-    private InternalConverter internalConverter;
+    private final InternalConverter internalConverter;
 
     public Array(InternalConverter internalConverter) {
         this.internalConverter = internalConverter;
@@ -31,14 +31,14 @@ public class Array implements Converter {
     }
 
     @Override
-    public Object fromConfig(Class type, Object section, ParameterizedType genericType) throws Exception {
+    public Object fromConfig(Class<?> type, Object section, ParameterizedType genericType) throws Exception {
         Class<?> singleType = type.getComponentType();
-        java.util.List values;
+        java.util.List<Object> values;
 
         if(section instanceof java.util.List)
-            values = (java.util.List) section;
+            values = (java.util.List<Object>) section;
         else {
-            values = new ArrayList();
+            values = new ArrayList<>();
             Collections.addAll(values, (Object[]) section);
         }
 

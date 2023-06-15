@@ -43,25 +43,20 @@ public class YamlConfig extends ConfigMapper implements IConfig {
 				continue;
 			}
 
-			String path = "";
+			String path;
 
-			switch (CONFIG_MODE) {
-				case PATH_BY_UNDERSCORE:
-					path = field.getName().replace("_", ".");
-					break;
-				case FIELD_IS_KEY:
-					path = field.getName();
-					break;
-				case DEFAULT:
-				default:
-					String fieldName = field.getName();
-					if (fieldName.contains("_")) {
-						path = field.getName().replace("_", ".");
-					} else {
-						path = field.getName();
-					}
-					break;
-			}
+            switch (CONFIG_MODE) {
+                case PATH_BY_UNDERSCORE -> path = field.getName().replace("_", ".");
+                case FIELD_IS_KEY -> path = field.getName();
+                default -> {
+                    String fieldName = field.getName();
+                    if (fieldName.contains("_")) {
+                        path = field.getName().replace("_", ".");
+                    } else {
+                        path = field.getName();
+                    }
+                }
+            }
 
 			ArrayList<String> comments = new ArrayList<>();
 			for (Annotation annotation : field.getAnnotations()) {
@@ -82,7 +77,7 @@ public class YamlConfig extends ConfigMapper implements IConfig {
 				path = path1.value();
 			}
 
-			if (comments.size() > 0) {
+			if (!comments.isEmpty()) {
 				for (String comment : comments) {
 					addComment(path, comment);
 				}

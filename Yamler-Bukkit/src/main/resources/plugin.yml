@@ -1,4 +1,4 @@
 name: Yamler
 main : net.cubespace.Yamler.YamlerPlugin
-version: ${project.version}b-${build.number}
+version: ${project.version}
 author: geNAZt

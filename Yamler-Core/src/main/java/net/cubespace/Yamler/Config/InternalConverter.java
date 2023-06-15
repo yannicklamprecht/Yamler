@@ -15,8 +15,8 @@ import java.util.List;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class InternalConverter {
-	private LinkedHashSet<Converter> converters = new LinkedHashSet<>();
-	private List<Class> customConverters = new ArrayList<>();
+	private final LinkedHashSet<Converter> converters = new LinkedHashSet<>();
+	private final List<Class<?>> customConverters = new ArrayList<>();
 
 	public InternalConverter() {
 		try {
@@ -31,7 +31,7 @@ public class InternalConverter {
 		}
 	}
 
-	public void addConverter(Class converter) throws InvalidConverterException {
+	public void addConverter(Class<?> converter) throws InvalidConverterException {
 		if (!Converter.class.isAssignableFrom(converter)) {
 			throw new InvalidConverterException("Converter does not implement the Interface Converter");
 		}
@@ -50,7 +50,7 @@ public class InternalConverter {
 		}
 	}
 
-	public Converter getConverter(Class type) {
+	public Converter getConverter(Class<?> type) {
 		for (Converter converter : converters) {
 			if (converter.supports(type)) {
 				return converter;
@@ -184,11 +184,11 @@ public class InternalConverter {
 		root.set(path, obj);
 	}
 
-	public List<Class> getCustomConverters() {
+	public List<Class<?>> getCustomConverters() {
 		return new ArrayList<>(customConverters);
 	}
 
-	public void addCustomConverter(Class addConverter) throws InvalidConverterException {
+	public void addCustomConverter(Class<?> addConverter) throws InvalidConverterException {
 		addConverter(addConverter);
 		customConverters.add(addConverter);
 	}

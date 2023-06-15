@@ -29,6 +29,7 @@ package net.cubespace.Yamler;
  */
 
 
+import java.net.URI;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginDescription;
@@ -425,7 +426,7 @@ public class Metrics {
         json.append( '}' );
 
         // Create the url
-        URL url = new URL( BASE_URL + String.format( REPORT_URL, urlEncode( pluginName ) ) );
+        URL url = URI.create( BASE_URL + String.format( REPORT_URL, urlEncode( pluginName ) ) ).toURL();
 
         // Connect to the website
         URLConnection connection;

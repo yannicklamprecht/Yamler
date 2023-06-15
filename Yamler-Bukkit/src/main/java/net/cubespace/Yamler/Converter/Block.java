@@ -26,14 +26,14 @@ public class Block implements Converter {
 
         Converter locationConverter = converter.getConverter(org.bukkit.Location.class);
         Map<String, Object> saveMap = new HashMap<>();
-        saveMap.put("id", block.getType() + ((block.getData() > 0) ? ":" + block.getData() : ""));
+        saveMap.put("id", block.getType().name());
         saveMap.put("location", locationConverter.toConfig(org.bukkit.Location.class, block.getLocation(), null));
 
         return saveMap;
     }
 
     @Override
-    public Object fromConfig(Class type, Object section, ParameterizedType genericType) throws Exception {
+    public Object fromConfig(Class type, Object section, ParameterizedType genericType) {
         Map<String, Object> blockMap = (Map<String, Object>) ((ConfigSection) section).getRawMap();
         Map<String, Object> locationMap = (Map<String, Object>) ((ConfigSection) blockMap.get("location")).getRawMap();
 
@@ -42,10 +42,6 @@ public class Block implements Converter {
 
         String[] temp = ((String) blockMap.get("id")).split(":");
         block.setType(Material.valueOf(temp[0]));
-
-        if (temp.length == 2) {
-            block.setData(Byte.valueOf(temp[1]));
-        }
 
         return block;
     }

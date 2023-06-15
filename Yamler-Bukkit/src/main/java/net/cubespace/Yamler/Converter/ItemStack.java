@@ -15,7 +15,7 @@ import java.util.Map;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class ItemStack implements Converter {
-    private InternalConverter converter;
+    private final InternalConverter converter;
 
     public ItemStack(InternalConverter converter) {
         this.converter = converter;
@@ -26,7 +26,7 @@ public class ItemStack implements Converter {
         org.bukkit.inventory.ItemStack itemStack = (org.bukkit.inventory.ItemStack) obj;
 
         Map<String, Object> saveMap = new HashMap<>();
-        saveMap.put("id", itemStack.getType() + ((itemStack.getDurability() > 0) ? ":" + itemStack.getDurability() : ""));
+        saveMap.put("id", itemStack.getType().name());
         saveMap.put("amount", itemStack.getAmount());
 
         Converter listConverter = converter.getConverter(List.class);
@@ -57,14 +57,9 @@ public class ItemStack implements Converter {
                 metaMap = ((ConfigSection) itemstackMap.get("meta")).getRawMap();
         }
 
-        String[] temp = ((String) itemstackMap.get("id")).split(":");
-        org.bukkit.inventory.ItemStack itemStack = (org.bukkit.inventory.ItemStack)
-                type.getConstructor(Material.class).newInstance(Material.valueOf(temp[0]));
+        String temp = ((String) itemstackMap.get("id"));
+        org.bukkit.inventory.ItemStack itemStack = new org.bukkit.inventory.ItemStack(Material.getMaterial(temp));
         itemStack.setAmount((int) itemstackMap.get("amount"));
-
-        if(temp.length == 2) {
-            itemStack.setDurability(Short.valueOf(temp[1]));
-        }
 
         if(metaMap != null) {
             ItemMeta itemMeta = itemStack.getItemMeta();

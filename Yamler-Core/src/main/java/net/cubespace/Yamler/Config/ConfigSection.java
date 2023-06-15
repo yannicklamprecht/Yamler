@@ -7,7 +7,7 @@ import java.util.Map;
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class ConfigSection {
-    private String fullPath;
+    private final String fullPath;
     protected final Map<Object, Object> map = new LinkedHashMap<>();
 
     public ConfigSection() {
@@ -15,7 +15,7 @@ public class ConfigSection {
     }
 
     public ConfigSection(ConfigSection root, String key) {
-        this.fullPath = (!root.fullPath.equals("")) ? root.fullPath + "." + key : key;
+        this.fullPath = (!root.fullPath.isEmpty()) ? root.fullPath + "." + key : key;
     }
 
     public ConfigSection create(String path) {

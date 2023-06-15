@@ -1,39 +1,49 @@
 package net.cubespace.Yamler.Config;
 
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
-import org.yaml.snakeyaml.error.YAMLException;
-import org.yaml.snakeyaml.representer.Representer;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
+import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.inspector.TrustedTagInspector;
+import org.yaml.snakeyaml.representer.Representer;
 
 /**
  * @author geNAZt (fabian.fassbender42@googlemail.com)
  */
 public class BaseConfigMapper extends BaseConfig {
-	private transient Yaml yaml;
+	private final transient Yaml yaml;
 	protected transient ConfigSection root;
-	private transient Map<String, ArrayList<String>> comments = new LinkedHashMap<>();
-	private transient Representer yamlRepresenter = new Representer();
+	private final transient Map<String, List<String>> comments = new LinkedHashMap<>();
 
 	protected BaseConfigMapper() {
-		DumperOptions yamlOptions = new DumperOptions();
-		yamlOptions.setIndent(2);
-		yamlOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+		DumperOptions dumperOptions = new DumperOptions();
+		dumperOptions.setIndent(2);
+		dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+		LoaderOptions loaderOptions = new LoaderOptions();
+		loaderOptions.setTagInspector(new TrustedTagInspector());
 
+		Representer yamlRepresenter = new Representer(dumperOptions);
 		yamlRepresenter.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
-		yaml = new Yaml(new CustomClassLoaderConstructor(BaseConfigMapper.class.getClassLoader()), yamlRepresenter, yamlOptions);
+		yaml = new Yaml(
+				new CustomClassLoaderConstructor(
+						this.getClass().getClassLoader(),
+						loaderOptions
+				),
+				new Representer(dumperOptions),
+				dumperOptions);
+
 
         /*
         Configure the settings for serializing via the annotations present.
@@ -44,7 +54,7 @@ public class BaseConfigMapper extends BaseConfig {
 	protected void loadFromYaml() throws InvalidConfigurationException {
 		root = new ConfigSection();
 
-		try (InputStreamReader fileReader = new InputStreamReader(new FileInputStream(CONFIG_FILE), Charset.forName("UTF-8"))) {
+		try (InputStreamReader fileReader = new InputStreamReader(new FileInputStream(CONFIG_FILE), StandardCharsets.UTF_8)) {
 			Object object = yaml.load(fileReader);
 
 			if (object != null) {
@@ -73,7 +83,7 @@ public class BaseConfigMapper extends BaseConfig {
 	}
 
 	protected void saveToYaml() throws InvalidConfigurationException {
-		try (OutputStreamWriter fileWriter = new OutputStreamWriter(new FileOutputStream(CONFIG_FILE), Charset.forName("UTF-8"))) {
+		try (OutputStreamWriter fileWriter = new OutputStreamWriter(new FileOutputStream(CONFIG_FILE), StandardCharsets.UTF_8)) {
 			if (CONFIG_HEADER != null) {
 				for (String line : CONFIG_HEADER) {
 					fileWriter.write("# " + line + "\n");
@@ -82,7 +92,7 @@ public class BaseConfigMapper extends BaseConfig {
 				fileWriter.write("\n");
 			}
 
-			Integer depth = 0;
+			int depth = 0;
 			ArrayList<String> keyChain = new ArrayList<>();
 			String yamlString = yaml.dump(root.getValues(true));
 			StringBuilder writeLines = new StringBuilder();
@@ -126,14 +136,10 @@ public class BaseConfigMapper extends BaseConfig {
 				}
 
 				String search;
-				if (keyChain.size() > 0) {
-					search = join(keyChain, ".");
-				} else {
-					search = "";
-				}
+                search = join(keyChain, ".");
 
 
-				if (comments.containsKey(search)) {
+                if (comments.containsKey(search)) {
 					for (String comment : comments.get(search)) {
 						writeLines.append(new String(new char[depth - 2]).replace("\0", " "));
 						writeLines.append("# ");
@@ -148,6 +154,7 @@ public class BaseConfigMapper extends BaseConfig {
 
 			fileWriter.write(writeLines.toString());
 		} catch (IOException e) {
+			var b = e;
 			throw new InvalidConfigurationException("Could not save YML", e);
 		}
 	}
